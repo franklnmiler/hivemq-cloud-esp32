@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Riwayat Relay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-10">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow-lg">
+    <h1 class="text-2xl font-bold mb-6 text-center">Riwayat Kontrol Relay</h1>
+    <table class="table-auto w-full border border-collapse">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border px-4 py-2">ID</th>
+          <th class="border px-4 py-2">Relay</th>
+          <th class="border px-4 py-2">Status</th>
+          <th class="border px-4 py-2">Waktu</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr class="text-center">
+          <td class="border px-4 py-2">{{ log.id }}</td>
+          <td class="border px-4 py-2">Relay {{ log.relay_index + 1 }}</td>
+          <td class="border px-4 py-2">
+            {% if log.state == 1 %}
+              <span class="text-green-600 font-bold">ON</span>
+            {% else %}
+              <span class="text-red-600 font-bold">OFF</span>
+            {% endif %}
+          </td>
+          <td class="border px-4 py-2">{{ log.waktu }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="text-center mt-4">
+      <a href="/control/relay" class="text-blue-500 underline">← Kembali ke Kontrol</a>
+    </div>
+  </div>
+</body>
+</html>

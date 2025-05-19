@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kontrol Relay & Sensor BME280 Realtime</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .relay-btn {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .relay-btn:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+    .relay-btn:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+    .sensor-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .sensor-card:hover {
+      transform: translateY(-5px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-10 min-h-screen">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-800">IoT Dashboard</h1>
+      <p class="text-gray-600">Kontrol Relay & Monitoring Sensor BME280</p>
+    </div>
+    
+    <!-- Connection Status -->
+    <div class="flex items-center justify-center">
+      <div id="connectionStatus" class="flex items-center px-4 py-2 rounded-full bg-gray-200 shadow-inner">
+        <span class="w-3 h-3 rounded-full mr-2 bg-gray-500"></span>
+        <span class="text-sm font-medium">Menghubungkan...</span>
+      </div>
+    </div>
+
+    <!-- Relay Control Card -->
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">
+          <i class="fas fa-sliders-h text-blue-500 mr-2"></i>Kontrol Relay
+        </h2>
+        <div class="text-sm text-gray-500">
+          <i class="far fa-clock mr-1"></i>
+          <span id="relayLastUpdate">Belum ada update</span>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 text-center">
+        <!-- Relay Buttons -->
+        <div>
+          <button id="relay-btn-0" onclick="toggleRelay(0)" class="relay-btn bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 rounded-xl w-full shadow-md">
+            <i class="fas fa-power-off mr-2"></i>Relay 1 OFF
+          </button>
+        </div>
+        <div>
+          <button id="relay-btn-1" onclick="toggleRelay(1)" class="relay-btn bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 rounded-xl w-full shadow-md">
+            <i class="fas fa-power-off mr-2"></i>Relay 2 OFF
+          </button>
+        </div>
+        <div>
+          <button id="relay-btn-2" onclick="toggleRelay(2)" class="relay-btn bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 rounded-xl w-full shadow-md">
+            <i class="fas fa-power-off mr-2"></i>Relay 3 OFF
+          </button>
+        </div>
+        <div>
+          <button id="relay-btn-3" onclick="toggleRelay(3)" class="relay-btn bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 rounded-xl w-full shadow-md">
+            <i class="fas fa-power-off mr-2"></i>Relay 4 OFF
+          </button>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <a href="/relay/log" class="inline-flex items-center text-blue-500 hover:text-blue-700 underline transition-colors">
+          <i class="fas fa-history mr-1"></i>Lihat Riwayat Relay
+        </a>
+      </div>
+    </div>
+
+    <!-- Sensor BME280 Card -->
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">
+          <i class="fas fa-chart-line text-blue-500 mr-2"></i>Sensor BME280
+        </h2>
+        <div class="text-sm text-gray-500">
+          <i class="far fa-clock mr-1"></i>
+          <span id="lastUpdate">Belum ada data</span>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+        <div class="sensor-card bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-100 hover:shadow-md">
+          <h2 class="font-semibold text-lg text-blue-700"><i class="fas fa-temperature-high mr-2"></i>Temperature</h2>
+          <p id="temperature" class="text-4xl font-bold text-blue-800">-- °C</p>
+          <div class="mt-2 h-2 bg-blue-200 rounded-full overflow-hidden">
+            <div id="temp-bar" class="h-full bg-blue-500" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="sensor-card bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-100 hover:shadow-md">
+          <h2 class="font-semibold text-lg text-green-700"><i class="fas fa-tachometer-alt mr-2"></i>Pressure</h2>
+          <p id="pressure" class="text-4xl font-bold text-green-800">-- hPa</p>
+          <div class="mt-2 h-2 bg-green-200 rounded-full overflow-hidden">
+            <div id="press-bar" class="h-full bg-green-500" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="sensor-card bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-100 hover:shadow-md">
+          <h2 class="font-semibold text-lg text-purple-700"><i class="fas fa-tint mr-2"></i>Humidity</h2>
+          <p id="humidity" class="text-4xl font-bold text-purple-800">-- %</p>
+          <div class="mt-2 h-2 bg-purple-200 rounded-full overflow-hidden">
+            <div id="humi-bar" class="h-full bg-purple-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="text-center text-sm text-gray-500 mt-6">
+      <p>© 2023 IoT Dashboard | Realtime Monitoring System</p>
+    </div>
+  </div>
+
+  <script>
+    // Status koneksi
+    let isConnected = false;
+    let lastUpdateTime = null;
+    let relayLastUpdateTime = null;
+    
+    // Simpan status relay secara lokal
+    const relayStates = [0, 0, 0, 0];
+    
+    // Update UI status koneksi
+    function updateConnectionStatus(connected) {
+      isConnected = connected;
+      const statusElement = document.getElementById('connectionStatus');
+      const dot = statusElement.querySelector('span:first-child');
+      const text = statusElement.querySelector('span:last-child');
+      
+      if (connected) {
+        dot.className = 'w-3 h-3 rounded-full mr-2 bg-green-500 animate-pulse';
+        text.textContent = 'Terhubung ke Broker MQTT';
+        statusElement.className = 'flex items-center px-4 py-2 rounded-full bg-green-100 shadow-inner';
+      } else {
+        dot.className = 'w-3 h-3 rounded-full mr-2 bg-red-500';
+        text.textContent = 'Terputus - Mencoba menghubungkan...';
+        statusElement.className = 'flex items-center px-4 py-2 rounded-full bg-red-100 shadow-inner';
+      }
+    }
+    
+    // Format waktu
+    function formatTime(date) {
+      if (!date) return 'Belum ada update';
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+      
+      if (diff < 5) return 'Baru saja';
+      if (diff < 60) return `${diff} detik yang lalu`;
+      if (diff < 3600) return `${Math.floor(diff/60)} menit yang lalu`;
+      return date.toLocaleTimeString();
+    }
+    
+    // Toggle fungsi relay
+    function toggleRelay(index) {
+      if (!isConnected) {
+        alert('Tidak terhubung ke MQTT broker!');
+        return;
+      }
+      
+      // Update UI immediately for better responsiveness
+      const newState = relayStates[index] === 0 ? 1 : 0;
+      relayStates[index] = newState;
+      updateRelayButton(index, newState);
+      
+      const payload = JSON.stringify({ relay: index, state: newState });
+      
+      // Kirim ke MQTT
+      client.publish('iot/esp8266/relay', payload, { qos: 1 }, (err) => {
+        if (err) {
+          console.error('Gagal mengirim ke MQTT:', err);
+          // Rollback status jika gagal
+          relayStates[index] = newState === 0 ? 1 : 0;
+          updateRelayButton(index, relayStates[index]);
+        } else {
+          relayLastUpdateTime = new Date();
+          document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
+        }
+      });
+      
+      // Kirim ke API server
+      fetch('/api/relay-control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+      }).then(res => res.json())
+        .then(data => console.log('✅ Disimpan ke server:', data))
+        .catch(err => {
+          console.error('❌ Gagal simpan:', err);
+          // Tidak rollback karena MQTT mungkin sudah berhasil
+        });
+    }
+    
+    // Update tampilan tombol relay
+    function updateRelayButton(index, status) {
+      const btn = document.getElementById(`relay-btn-${index}`);
+      if (btn) {
+        const icon = btn.querySelector('i');
+        btn.textContent = `Relay ${index + 1} ${status ? 'ON' : 'OFF'}`;
+        btn.insertBefore(icon, btn.firstChild); // Pertahankan ikon
+        
+        if (status) {
+          btn.classList.replace('from-red-500', 'from-green-500');
+          btn.classList.replace('to-red-600', 'to-green-600');
+          btn.classList.replace('hover:from-red-600', 'hover:from-green-600');
+          btn.classList.replace('hover:to-red-700', 'hover:to-green-700');
+        } else {
+          btn.classList.replace('from-green-500', 'from-red-500');
+          btn.classList.replace('to-green-600', 'to-red-600');
+          btn.classList.replace('hover:from-green-600', 'hover:from-red-600');
+          btn.classList.replace('hover:to-green-700', 'hover:to-red-700');
+        }
+      }
+    }
+    
+    // Update data sensor dari MQTT
+    function updateSensorData(data) {
+      lastUpdateTime = new Date();
+      
+      if (data.temperature !== undefined) {
+        document.getElementById('temperature').textContent = `${data.temperature.toFixed(2)} °C`;
+        // Update progress bar (assuming range 0-50°C)
+        const tempPercent = Math.min(100, Math.max(0, (data.temperature / 50) * 100));
+        document.getElementById('temp-bar').style.width = `${tempPercent}%`;
+      }
+      
+      if (data.pressure !== undefined) {
+        document.getElementById('pressure').textContent = `${data.pressure.toFixed(2)} hPa`;
+        // Update progress bar (assuming range 900-1100 hPa)
+        const pressPercent = Math.min(100, Math.max(0, ((data.pressure - 900) / 200) * 100));
+        document.getElementById('press-bar').style.width = `${pressPercent}%`;
+      }
+      
+      if (data.humidity !== undefined) {
+        document.getElementById('humidity').textContent = `${data.humidity.toFixed(2)} %`;
+        // Update progress bar (0-100%)
+        document.getElementById('humi-bar').style.width = `${data.humidity}%`;
+      }
+      
+      document.getElementById('lastUpdate').textContent = formatTime(lastUpdateTime);
+    }
+    
+    // MQTT Setup
+    const mqttUrl = 'wss://7031e8491d334b88b475025af999ffeb.s1.eu.hivemq.cloud:8884/mqtt';
+    const options = {
+      username: 'irsyad26',
+      password: 'Irsyad031226',
+      clean: true,
+      connectTimeout: 4000,
+      reconnectPeriod: 1000,
+      clientId: 'web-client-' + Math.random().toString(16).substr(2, 8),
+    };
+    
+    const client = mqtt.connect(mqttUrl, options);
+    
+    // Event handlers
+    client.on('connect', () => {
+      console.log('✅ Terhubung ke broker MQTT');
+      updateConnectionStatus(true);
+      
+      // Subscribe ke topik dengan QoS 1 untuk memastikan pesan diterima
+      client.subscribe('iot/esp8266/relay/status', { qos: 1 }, (err) => {
+        if (err) console.error('Gagal subscribe relay status:', err);
+      });
+      
+      client.subscribe('iot/esp8266/sensor', { qos: 1 }, (err) => {
+        if (err) console.error('Gagal subscribe sensor:', err);
+      });
+      
+      // Request current relay status
+      client.publish('iot/esp8266/relay/get_status', '1', { qos: 1 });
+    });
+    
+    client.on('reconnect', () => {
+      console.log('⏳ Mencoba menghubungkan kembali...');
+      updateConnectionStatus(false);
+    });
+    
+    client.on('offline', () => {
+      console.log('❌ Koneksi terputus');
+      updateConnectionStatus(false);
+    });
+    
+    client.on('error', (err) => {
+      console.error('❌ Error MQTT:', err);
+      updateConnectionStatus(false);
+    });
+    
+    client.on('message', (topic, message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        console.log(`📩 Pesan baru di ${topic}:`, data);
+        
+        if (topic === 'iot/esp8266/relay/status') {
+          if (Array.isArray(data.relays)) {
+            data.relays.forEach(r => {
+              if (r.relay_channel !== undefined && r.status !== undefined) {
+                relayStates[r.relay_channel] = r.status;
+                updateRelayButton(r.relay_channel, r.status);
+              }
+            });
+            relayLastUpdateTime = new Date();
+            document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
+          } else if (data.relay !== undefined && data.state !== undefined) {
+            relayStates[data.relay] = data.state;
+            updateRelayButton(data.relay, data.state);
+            relayLastUpdateTime = new Date();
+            document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
+          }
+        } else if (topic === 'iot/esp8266/sensor') {
+          updateSensorData(data);
+        }
+      } catch (err) {
+        console.error('Gagal memproses pesan:', err);
+      }
+    });
+    
+    // Update waktu setiap detik
+    setInterval(() => {
+      if (lastUpdateTime) {
+        document.getElementById('lastUpdate').textContent = formatTime(lastUpdateTime);
+      }
+      if (relayLastUpdateTime) {
+        document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
+      }
+    }, 1000);
+    
+    // Cek status koneksi setiap 5 detik
+    setInterval(() => {
+      if (!client.connected) {
+        updateConnectionStatus(false);
+      }
+    }, 5000);
+    
+    // Tampilkan notifikasi jika tab tidak aktif
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && lastUpdateTime) {
+        const now = new Date();
+        const diff = (now - lastUpdateTime) / 1000;
+        if (diff > 30) {
+          const notif = new Notification('Perhatian', {
+            body: `Data sensor terakhir diterima ${Math.floor(diff)} detik yang lalu`
+          });
+        }
+      }
+    });
+    
+    // Minta izin notifikasi
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+  </script>
+</body>
+</html>

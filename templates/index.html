@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Monitoring IoT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='steye.css') }}">
+
+</head>
+
+<body class="dashboard-grid">
+  <!-- Background particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Top Navigation -->
+  <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <div class="p-2 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ripple">
+          <i class="fas fa-microchip text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">IoT Dashboard</h1>
+          <p class="text-sm opacity-80">Real-time sensor monitoring system</p>
+        </div>
+      </div>
+      
+      <nav class="hidden md:flex items-center space-x-6">
+        <a href="/" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
+          <i class="fas fa-chart-line mr-2"></i>Monitoring
+        </a>
+        <a href="{{ url_for('export_csv') }}" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
+          <i class="fas fa-file-export mr-2"></i>Export CSV
+        </a>
+        <a href="/control/relay" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
+          <i class="fas fa-toggle-on mr-2"></i>Control Relay
+        </a>
+          <a href="/esp32/cam" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
+          <i class="fas fa-toggle-on mr-2"></i>CCTV
+        </a>
+      </nav>
+      
+      <div class="flex items-center space-x-4">
+        <div class="hidden md:block text-right">
+          <p class="text-sm font-medium">irsyad@example.com</p>
+          <p class="text-xs opacity-70">Administrator</p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center hover:bg-opacity-20 transition cursor-pointer ripple">
+          <i class="fas fa-user"></i>
+        </div>
+        <button class="md:hidden text-xl focus:outline-none ripple">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Location and Weather Section -->
+    <section class="gradient-border mb-6">
+      <div class="bg-white rounded-xl p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Los Angeles, California</h2>
+            <p class="text-gray-600">Wednesday, March 05</p>
+          </div>
+          <div class="flex items-center mt-2 md:mt-0">
+            <div class="text-3xl font-bold mr-4">56°F</div>
+            <div class="text-gray-500">Feels Like 55°</div>
+          </div>
+        </div>
+        
+      
+    <!-- Welcome Header -->
+    <section class="glass-card rounded-2xl shadow-sm p-6 mb-6 flex flex-col md:flex-row items-center gap-6 card-hover wave">
+      <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center shadow-md floating-icon ripple">
+        <i class="fas fa-cloud text-2xl text-white"></i>
+      </div>
+      <div class="text-center md:text-left">
+        <h2 class="text-2xl font-bold text-gray-800">Welcome Back, Irsyad</h2>
+        <p class="text-gray-600 mt-1">Your BME280 sensor dashboard with real-time monitoring</p>
+      </div>
+      <div class="md:ml-auto flex items-center space-x-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full hover:bg-blue-100 transition ripple">
+        <i class="fas fa-clock"></i>
+        <span id="current-time" class="text-sm font-medium">Loading...</span>
+      </div>
+    </section>
+
+    <!-- Sensor Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <!-- Temperature Card -->
+      <div class="sensor-card temperature bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Temperature</p>
+            <h3 class="text-3xl font-bold text-blue-500 mt-1" id="suhu-terakhir">30.28</h3>
+            <p class="text-xs text-gray-400 mt-1">°C</p>
+          </div>
+          <div class="p-3 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 transition">
+            <i class="fas fa-temperature-high text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="temp-update-time">--:--</p>
+        </div>
+      </div>
+      
+      <!-- Humidity Card -->
+      <div class="sensor-card humidity bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Humidity</p>
+            <h3 class="text-3xl font-bold text-green-500 mt-1" id="kelembapan-terakhir">82.3</h3>
+            <p class="text-xs text-gray-400 mt-1">% RH</p>
+          </div>
+          <div class="p-3 rounded-lg bg-green-50 text-green-500 hover:bg-green-100 transition">
+            <i class="fas fa-tint text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="humidity-update-time">--:--</p>
+        </div>
+      </div>
+      
+      <!-- Pressure Card -->
+      <div class="sensor-card pressure bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Pressure</p>
+            <h3 class="text-3xl font-bold text-yellow-500 mt-1" id="tekanan-terakhir">1009.04</h3>
+            <p class="text-xs text-gray-400 mt-1">hPa</p>
+          </div>
+          <div class="p-3 rounded-lg bg-yellow-50 text-yellow-500 hover:bg-yellow-100 transition">
+            <i class="fas fa-tachometer-alt text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="pressure-update-time">--:--</p>
+        </div>
+      </div>
+      
+      <!-- Distance Card -->
+      <div class="sensor-card distance bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Distance</p>
+            <h3 class="text-3xl font-bold text-cyan-500 mt-1" id="shcr04-jarak">7.87</h3>
+            <p class="text-xs text-gray-400 mt-1">centimeters</p>
+          </div>
+          <div class="p-3 rounded-lg bg-cyan-50 text-cyan-500 hover:bg-cyan-100 transition">
+            <i class="fas fa-ruler-vertical text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="distance-update-time">--:--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Row of Sensor Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <!-- Air Quality Card -->
+      <div class="sensor-card air-quality bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Air Quality</p>
+            <h3 class="text-3xl font-bold text-red-500 mt-1" id="status-kualitas-udara">108 ppm</h3>
+            <p class="text-xs text-gray-400 mt-1">Tercemar</p>
+          </div>
+          <div class="p-3 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition">
+            <i class="fas fa-wind text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="air-quality-update-time">--:--</p>
+        </div>
+      </div>
+      
+      <!-- Fire Detection Card -->
+      <div class="sensor-card fire bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Fire Detection</p>
+            <h3 class="text-3xl font-bold text-red-500 mt-1" id="kebakaran-terakhir">Aman</h3>
+            <p class="text-xs text-gray-400 mt-1">Status</p>
+          </div>
+          <div class="p-3 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition">
+            <i class="fas fa-fire text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="fire-update-time">--:--</p>
+        </div>
+      </div>
+      
+      <!-- Altitude Card -->
+      <div class="sensor-card altitude bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Altitude</p>
+            <h3 class="text-3xl font-bold text-gray-600 mt-1" id="altitude-terakhir">30</h3>
+            <p class="text-xs text-gray-400 mt-1">meters</p>
+          </div>
+          <div class="p-3 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 transition">
+            <i class="fas fa-mountain text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <p class="text-xs text-gray-500">Last update</p>
+          <p class="text-xs font-medium" id="altitude-update-time">--:--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <section class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Sensor Data History</h3>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-gray-500">Last 10 minutes</span>
+          <button class="p-2 rounded-md bg-gray-100 text-gray-500 hover:bg-gray-200 transition ripple">
+            <i class="fas fa-sync-alt text-sm"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Temperature Chart -->
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-medium text-gray-600 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+              Temperature
+            </h4>
+            <span class="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">°C</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-suhu"></canvas>
+          </div>
+        </div>
+        
+        <!-- Humidity Chart -->
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-medium text-gray-600 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+              Humidity
+            </h4>
+            <span class="text-xs px-2 py-1 bg-green-50 text-green-600 rounded-full">% RH</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-kelembapan"></canvas>
+          </div>
+        </div>
+        
+        <!-- Pressure Chart -->
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-medium text-gray-600 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
+              Pressure
+            </h4>
+            <span class="text-xs px-2 py-1 bg-yellow-50 text-yellow-600 rounded-full">hPa</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-tekanan"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notifications Section -->
+    <section id="notifikasi-container" class="fixed bottom-20 md:bottom-6 right-4 z-40 w-full max-w-xs space-y-3"></section>
+  </main>
+
+  <!-- Floating Action Button -->
+  <div class="fab ripple" id="fab">
+    <i class="fas fa-bolt"></i>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="md:hidden bg-white shadow-lg fixed bottom-0 left-0 right-0 z-40">
+    <div class="flex justify-around py-3">
+      <a href="/" class="flex flex-col items-center text-blue-600 ripple">
+        <i class="fas fa-chart-line text-xl"></i>
+        <span class="text-xs mt-1">Monitoring</span>
+      </a>
+      <a href="{{ url_for('export_csv') }}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition ripple">
+        <i class="fas fa-file-export text-xl"></i>
+        <span class="text-xs mt-1">Export</span>
+      </a>
+      <a href="/control/relay" class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition ripple">
+        <i class="fas fa-toggle-on text-xl"></i>
+        <span class="text-xs mt-1">Relay</span>
+      </a>
+      <a href="#" class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition ripple">
+        <i class="fas fa-sign-out-alt text-xl"></i>
+        <span class="text-xs mt-1">Logout</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-4 px-6 text-center">
+    <p class="text-xs text-gray-500" id="footer-info">No data has been deleted.</p>
+  </footer>
+
+  <!-- JS Libraries -->
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  
+  <script>
+    const socket = io();
+
+    // Create background particles
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 15;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random size between 5 and 15px
+        const size = Math.random() * 10 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Random animation duration between 10s and 20s
+        particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        
+        // Random delay
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+    
+    // Initialize particles
+    createParticles();
+
+    // Update current time
+    function updateTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString();
+      document.getElementById('current-time').textContent = timeString;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Initialize charts
+    function initChart(canvasId, color) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length: 10}, (_, i) => `${i * 1} min`),
+          datasets: [{
+            label: '',
+            data: Array(10).fill(0),
+            borderColor: color,
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointBackgroundColor: color,
+            pointHoverBackgroundColor: color,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              titleFont: { size: 12 },
+              bodyFont: { size: 12 },
+              padding: 10,
+              cornerRadius: 6
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b' }
+            },
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: { color: '#64748b' }
+            }
+          },
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
+          }
+        }
+      });
+    }
+
+    // Initialize all charts
+    const tempChart = initChart('chart-suhu', '#3b82f6');
+    const humidityChart = initChart('chart-kelembapan', '#10b981');
+    const pressureChart = initChart('chart-tekanan', '#f59e0b');
+
+    // WebSocket for server connection
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
+    // WebSocket for deleted data notification
+    socket.on('data_deleted', function(data) {
+      const container = document.getElementById("notifikasi-container");
+      const footer = document.getElementById("footer-info");
+
+      if (data.count > 0) {
+        const div = document.createElement("div");
+        div.className = "bg-white rounded-lg shadow-lg p-4 border-l-4 border-red-500 notification-animation";
+        div.innerHTML = `
+          <div class="flex items-start">
+            <div class="flex-shrink-0 p-2 bg-red-100 rounded-full text-red-500">
+              <i class="fas fa-trash-alt"></i>
+            </div>
+            <div class="ml-3">
+              <h4 class="text-sm font-medium text-gray-900">Data Cleanup</h4>
+              <p class="text-xs text-gray-500 mt-1">
+                <strong>${data.count} old records</strong> were deleted at <strong>${data.time}</strong>
+              </p>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+        footer.innerText = `${data.count} old records deleted at ${data.time}`;
+        setTimeout(() => div.remove(), 5000);
+      } else {
+        footer.innerText = "No data has been deleted.";
+      }
+    });
+
+    // Function to update sensor timestamps
+    function updateSensorTimestamp(sensorId) {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById(`${sensorId}-update-time`).textContent = timeString;
+    }
+
+    // Function to animate value update
+    function animateValueUpdate(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.classList.add('value-updated');
+        setTimeout(() => {
+          element.classList.remove('value-updated');
+        }, 500);
+      }
+    }
+// Ripple effect for buttons
+function setupRippleEffect() {
+  const buttons = document.querySelectorAll('.ripple');
+  
+  buttons.forEach(button => {
+    button.style.position = 'relative';
+    button.style.overflow = 'hidden';
+
+    button.addEventListener('click', function(e) {
+      const rect = e.target.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const ripples = document.createElement('span');
+      ripples.style.position = 'absolute';
+      ripples.style.background = 'rgba(255, 255, 255, 0.5)';
+      ripples.style.borderRadius = '50%';
+      ripples.style.transform = 'scale(0)';
+      ripples.style.animation = 'ripple-animation 0.6s linear';
+      ripples.style.left = `${x}px`;
+      ripples.style.top = `${y}px`;
+      ripples.style.width = ripples.style.height = '200px';
+      ripples.style.pointerEvents = 'none';
+      ripples.style.zIndex = '10';
+      ripples.classList.add('ripple-span');
+
+      this.appendChild(ripples);
+
+      setTimeout(() => {
+        ripples.remove();
+      }, 600); // same as animation duration
+    });
+  });
+}
+
+// Add ripple animation CSS
+const rippleStyle = document.createElement('style');
+rippleStyle.innerHTML = `
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+`;
+document.head.appendChild(rippleStyle);
+
+// Call the function after DOM is ready
+document.addEventListener('DOMContentLoaded', setupRippleEffect);

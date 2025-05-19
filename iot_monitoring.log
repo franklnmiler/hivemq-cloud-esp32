@@ -1,0 +1,6 @@
+2025-05-17 07:35:07,561 [ERROR] Firebase init error: [Errno 2] No such file or directory: 'path/to/serviceAccountKey.json'
+2025-05-17 07:35:10,281 [ERROR] Firebase init error: [Errno 2] No such file or directory: 'path/to/serviceAccountKey.json'
+2025-05-17 07:35:54,814 [ERROR] MySQL connection error: (1698, "Access denied for user 'root'@'localhost'")
+2025-05-17 07:36:33,203 [CRITICAL] Application failed to start: timed out
+2025-05-17 07:36:43,117 [CRITICAL] Application failed to start: timed out
+2025-05-17 07:37:19,183 [CRITICAL] Application failed to start: timed out

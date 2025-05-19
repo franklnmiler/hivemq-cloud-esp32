@@ -1,0 +1,356 @@
+
+    :root {
+      --primary: #4361ee;
+      --primary-light: #3f37c9;
+      --secondary: #3a0ca3;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      color: #1e293b;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .sensor-card {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+    
+    .sensor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .sensor-card:hover::before {
+      width: 6px;
+    }
+    
+    .temperature::before {
+      background: linear-gradient(to bottom, #3b82f6, #93c5fd);
+    }
+    
+    .humidity::before {
+      background: linear-gradient(to bottom, #10b981, #6ee7b7);
+    }
+    
+    .pressure::before {
+      background: linear-gradient(to bottom, #f59e0b, #fcd34d);
+    }
+    
+    .altitude::before {
+      background: linear-gradient(to bottom, #64748b, #94a3b8);
+    }
+    
+    .air-quality::before {
+      background: linear-gradient(to bottom, #ef4444, #fca5a5);
+    }
+    
+    .fire::before {
+      background: linear-gradient(to bottom, #dc2626, #f87171);
+    }
+    
+    .distance::before {
+      background: linear-gradient(to bottom, #06b6d4, #67e8f9);
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 250px;
+    }
+    
+    .notification-animation {
+      animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    /* Pulse animation for sensor values */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .value-updated {
+      animation: pulse 0.5s ease;
+    }
+    
+    /* Floating animation for welcome card icon */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .floating-icon {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Glow effect for important cards */
+    .glow {
+      box-shadow: 0 0 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .glow:hover {
+      box-shadow: 0 0 20px rgba(67, 97, 238, 0.5);
+    }
+    
+    /* Background particles */
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 50%;
+      animation: float-particle 15s infinite linear;
+    }
+    
+    @keyframes float-particle {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+    
+    /* Sensor grid animation */
+    .sensor-value {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sensor-value::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    
+    .sensor-value:hover::after {
+      transform: translateX(100%);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .sensor-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+      }
+      
+      .sensor-value {
+        padding: 8px;
+        font-size: 14px;
+      }
+    }
+    
+    /* Full screen layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+    
+    .main-content {
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+    
+    .sensor-value {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #334155;
+      min-width: 80px;
+    }
+    
+    /* Animated gradient border */
+    .gradient-border {
+      position: relative;
+      border-radius: 16px;
+    }
+    
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      z-index: -1;
+      background: linear-gradient(45deg, #4361ee, #3a0ca3, #7209b7, #f72585);
+      background-size: 400% 400%;
+      border-radius: 18px;
+      animation: gradient 8s ease infinite;
+      opacity: 0.7;
+    }
+    
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* Ripple effect */
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ripple:after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+      background-repeat: no-repeat;
+      background-position: 50%;
+      transform: scale(10, 10);
+      opacity: 0;
+      transition: transform .5s, opacity 1s;
+    }
+    
+    .ripple:active:after {
+      transform: scale(0, 0);
+      opacity: .3;
+      transition: 0s;
+    }
+    
+    /* Floating action button */
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      z-index: 50;
+      transition: all 0.3s ease;
+    }
+    
+    .fab:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Wave animation */
+    .wave {
+      position: relative;
+    }
+    
+    .wave::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: wave 2s linear infinite;
+    }
+    
+    @keyframes wave {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
