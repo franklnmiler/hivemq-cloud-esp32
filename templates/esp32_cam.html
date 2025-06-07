@@ -1,57 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 CAM Stream</title>
-    <!-- Tailwind CDN (jika belum ada di layout utama) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESP32-CAM Live Stream</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Optional: Favicon -->
+  <link rel="icon" href="https://img.icons8.com/color/48/esp32.png" type="image/png">
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen px-4">
-    <div class="text-center">
-        <h2 class="text-3xl font-semibold mb-6 text-blue-400">ESP32-CAM Live Stream</h2>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center px-4">
 
-        <!-- Menampilkan Stream dari ESP32 -->
-        <div class="inline-block shadow-lg rounded-lg overflow-hidden border-4 border-blue-500">
-            <img src="http://192.168.1.200/stream" alt="Camera Stream" class="w-full max-w-xl" />
-        </div>
+  <div class="text-center max-w-4xl w-full">
+    <h1 class="text-4xl font-bold text-blue-400 mb-8">🎥 ESP32-CAM Live Stream</h1>
 
-        <!-- Tombol Simpan Gambar -->
-        <a id="saveBtn" onclick="simpanGambar()" class="inline-block px-5 py-2 rounded bg-green-600 hover:bg-green-700 text-white font-medium transition duration-200 cursor-pointer mt-6">
-            💾 Simpan Gambar ke Supabase
-        </a>
-
-        <div class="mt-6">
-            <!-- Link Kembali ke Dashboard -->
-            <a href="{{ url_for('index') }}"
-               class="inline-block px-5 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium transition duration-200">
-                ← Kembali ke Dashboard
-            </a>
-        </div>
+    <!-- Kamera Stream -->
+    <div class="border-4 border-blue-500 rounded-lg overflow-hidden shadow-lg">
+      <img id="camStream" src="http://192.168.1.200/stream" alt="Live Stream dari ESP32"
+           class="w-full h-auto max-h-[80vh] object-contain bg-black"/>
     </div>
 
-    <script>
-        async function simpanGambar() {
-            const btn = document.getElementById("saveBtn");
-            btn.disabled = true;
-            btn.innerText = "⏳ Menyimpan...";
+    <!-- Tombol Aksi -->
+    <div class="mt-6 space-x-4">
+      <button id="saveBtn"
+              onclick="simpanGambar()"
+              class="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-medium transition duration-200">
+        💾 Simpan Gambar ke Supabase
+      </button>
 
-            try {
-                const res = await fetch("/esp32/save-photo");
-                const data = await res.json();
+      <button onclick="openFullscreen()"
+              class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-medium transition duration-200">
+        🔍 Perbesar Gambar
+      </button>
+    </div>
 
-                if (data.url) {
-                    alert("✅ Gambar disimpan: " + data.url);
-                } else {
-                    alert("❌ Error: " + data.error);
-                }
-            } catch (error) {
-                alert("❌ Terjadi kesalahan: " + error.message);
-            }
+    <!-- Tombol Kembali -->
+    <div class="mt-6">
+      <a href="{{ url_for('index') }}"
+         class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition duration-200">
+        ← Kembali ke Dashboard
+      </a>
+    </div>
+  </div>
 
-            btn.disabled = false;
-            btn.innerText = "💾 Simpan Gambar ke Supabase";
+  <!-- Script -->
+  <script>
+    async function simpanGambar() {
+      const btn = document.getElementById("saveBtn");
+      btn.disabled = true;
+      btn.innerText = "⏳ Menyimpan...";
+
+      try {
+        const res = await fetch("/esp32/save-photo"); // Pastikan endpoint ini tersedia di backend
+        const data = await res.json();
+
+        if (res.ok && data.url) {
+          alert("✅ Gambar berhasil disimpan di Supabase: " + data.url);
+        } else {
+          throw new Error(data.error || "Tidak diketahui");
         }
-    </script>
+      } catch (error) {
+        alert("❌ Gagal menyimpan gambar: " + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "💾 Simpan Gambar ke Supabase";
+      }
+    }
+
+    function openFullscreen() {
+      const img = document.getElementById("camStream");
+      if (img.requestFullscreen) {
+        img.requestFullscreen();
+      } else if (img.webkitRequestFullscreen) {
+        img.webkitRequestFullscreen();
+      } else if (img.msRequestFullscreen) {
+        img.msRequestFullscreen();
+      }
+    }
+  </script>
 </body>
 </html>
