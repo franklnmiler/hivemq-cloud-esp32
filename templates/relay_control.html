@@ -7,6 +7,11 @@
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* Custom styles for animations and visual feedback */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     .relay-btn {
       transition: all 0.3s ease;
       position: relative;
@@ -22,7 +27,7 @@
       background: rgba(255, 255, 255, 0.5);
       opacity: 0;
       border-radius: 100%;
-      transform: scale(1, 1) translate(-50%);
+      transform: scale(1, 1) translate(-50%, -50%); /* Adjusted for proper centering */
       transform-origin: 50% 50%;
     }
     .relay-btn:focus:not(:active)::after {
@@ -30,11 +35,11 @@
     }
     @keyframes ripple {
       0% {
-        transform: scale(0, 0);
+        transform: scale(0, 0) translate(-50%, -50%);
         opacity: 0.5;
       }
       100% {
-        transform: scale(20, 20);
+        transform: scale(20, 20) translate(-50%, -50%);
         opacity: 0;
       }
     }
@@ -43,18 +48,31 @@
     }
     .sensor-card:hover {
       transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    /* Animation for value updates (though not currently used for numbers, useful for background changes) */
+    .value-updated {
+        transition: background-color 0.5s ease-out;
+        background-color: #e0f2fe; /* Light blue background when updated */
+    }
+    /* Notification animation for the custom message box */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
     }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-10 min-h-screen">
   <div class="max-w-4xl mx-auto space-y-6">
-    <!-- Header -->
     <div class="text-center">
       <h1 class="text-3xl font-bold text-gray-800">IoT Dashboard</h1>
       <p class="text-gray-600">Kontrol Relay & Monitoring Sensor BME280</p>
     </div>
     
-    <!-- Connection Status -->
     <div class="flex items-center justify-center">
       <div id="connectionStatus" class="flex items-center px-4 py-2 rounded-full bg-gray-200 shadow-inner">
         <span class="w-3 h-3 rounded-full mr-2 bg-gray-500"></span>
@@ -62,7 +80,6 @@
       </div>
     </div>
 
-    <!-- Relay Control Card -->
     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-bold text-gray-800">
@@ -75,7 +92,6 @@
       </div>
       
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 text-center">
-        <!-- Relay Buttons -->
         <div>
           <button id="relay-btn-0" onclick="toggleRelay(0)" class="relay-btn bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 rounded-xl w-full shadow-md">
             <i class="fas fa-power-off mr-2"></i>Relay 1 OFF
@@ -105,7 +121,6 @@
       </div>
     </div>
 
-    <!-- Sensor BME280 Card -->
     <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-bold text-gray-800">
@@ -142,7 +157,6 @@
       </div>
     </div>
     
-    <!-- Footer -->
     <div class="text-center text-sm text-gray-500 mt-6">
       <p>© 2023 IoT Dashboard | Realtime Monitoring System</p>
     </div>
@@ -155,7 +169,8 @@
     let relayLastUpdateTime = null;
     
     // Simpan status relay secara lokal
-    const relayStates = [0, 0, 0, 0];
+    // Initialize with a default state (e.g., all OFF) but will be updated from API
+    const relayStates = [0, 0, 0, 0]; 
     
     // Update UI status koneksi
     function updateConnectionStatus(connected) {
@@ -184,13 +199,19 @@
       if (diff < 5) return 'Baru saja';
       if (diff < 60) return `${diff} detik yang lalu`;
       if (diff < 3600) return `${Math.floor(diff/60)} menit yang lalu`;
-      return date.toLocaleTimeString();
+      // Fallback for older data (more than an hour) or if date object is invalid
+      try {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return date.toLocaleString();
+      }
     }
     
     // Toggle fungsi relay
     function toggleRelay(index) {
       if (!isConnected) {
-        alert('Tidak terhubung ke MQTT broker!');
+        // Use a custom modal or message box instead of alert()
+        showMessageBox('Koneksi Terputus', 'Tidak terhubung ke MQTT broker. Silakan coba lagi nanti.');
         return;
       }
       
@@ -208,13 +229,14 @@
           // Rollback status jika gagal
           relayStates[index] = newState === 0 ? 1 : 0;
           updateRelayButton(index, relayStates[index]);
+          showMessageBox('Gagal Mengirim Perintah', 'Gagal mengirim perintah ke MQTT broker. Periksa koneksi Anda.');
         } else {
           relayLastUpdateTime = new Date();
           document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
         }
       });
       
-      // Kirim ke API server
+      // Kirim ke API server (for persistence in DB)
       fetch('/api/relay-control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -223,7 +245,7 @@
         .then(data => console.log('✅ Disimpan ke server:', data))
         .catch(err => {
           console.error('❌ Gagal simpan:', err);
-          // Tidak rollback karena MQTT mungkin sudah berhasil
+          showMessageBox('Gagal Menyimpan Status', 'Status relay tidak dapat disimpan ke server.');
         });
     }
     
@@ -231,60 +253,110 @@
     function updateRelayButton(index, status) {
       const btn = document.getElementById(`relay-btn-${index}`);
       if (btn) {
-        const icon = btn.querySelector('i');
+        // Find the icon element if it exists
+        let icon = btn.querySelector('i');
+        if (!icon) { // If icon doesn't exist, create it
+            icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-power-off', 'mr-2');
+        } else { // Ensure it has the base classes
+            icon.classList.add('fas', 'fa-power-off', 'mr-2');
+        }
+
         btn.textContent = `Relay ${index + 1} ${status ? 'ON' : 'OFF'}`;
-        btn.insertBefore(icon, btn.firstChild); // Pertahankan ikon
+        btn.prepend(icon); // Ensure icon is always at the beginning
         
         if (status) {
-          btn.classList.replace('from-red-500', 'from-green-500');
-          btn.classList.replace('to-red-600', 'to-green-600');
-          btn.classList.replace('hover:from-red-600', 'hover:from-green-600');
-          btn.classList.replace('hover:to-red-700', 'hover:to-green-700');
+          btn.classList.remove('from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700');
+          btn.classList.add('from-green-500', 'to-green-600', 'hover:from-green-600', 'hover:to-green-700');
         } else {
-          btn.classList.replace('from-green-500', 'from-red-500');
-          btn.classList.replace('to-green-600', 'to-red-600');
-          btn.classList.replace('hover:from-green-600', 'hover:from-red-600');
-          btn.classList.replace('hover:to-green-700', 'hover:to-red-700');
+          btn.classList.remove('from-green-500', 'to-green-600', 'hover:from-green-600', 'hover:to-green-700');
+          btn.classList.add('from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700');
         }
       }
+    }
+
+    // Function to load initial relay states from the backend API
+    async function loadInitialRelayStates() {
+        try {
+            const response = await fetch('/api/relay/status');
+            if (!response.ok) {
+                // If not logged in, the Flask app redirects, which might cause a non-200.
+                // Or if there's a real server error.
+                if (response.status === 401) {
+                    console.warn('Authentication required to fetch initial relay states. Redirecting to login.');
+                    // You might want to handle this gracefully, e.g., redirect
+                    // window.location.href = '/auth/login'; 
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.relays && Array.isArray(data.relays)) {
+                data.relays.forEach(r => {
+                    // Ensure the relay channel is a valid index (0-3)
+                    if (r.relay_channel !== undefined && r.status !== undefined && r.relay_channel >= 0 && r.relay_channel < relayStates.length) {
+                        relayStates[r.relay_channel] = r.status;
+                        updateRelayButton(r.relay_channel, r.status);
+                    } else {
+                        console.warn(`Invalid relay data received: Channel ${r.relay_channel}, Status ${r.status}`);
+                    }
+                });
+                relayLastUpdateTime = new Date();
+                document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
+                console.log('✅ Status relay awal dimuat dari API.');
+            } else {
+                console.warn('API /api/relay/status tidak mengembalikan format data yang diharapkan.');
+            }
+        } catch (error) {
+            console.error('❌ Gagal memuat status relay awal dari API:', error);
+            // Only show user-facing message if it's not an authentication issue or typical network error
+            if (!error.message.includes('401') && !error.message.includes('Failed to fetch')) {
+                 showMessageBox('Error', 'Gagal memuat status relay awal. Relay mungkin tidak menampilkan status yang benar.');
+            } else {
+                console.log('Skipping message box for expected network/auth errors on load.');
+            }
+        }
     }
     
     // Update data sensor dari MQTT
     function updateSensorData(data) {
       lastUpdateTime = new Date();
       
-      if (data.temperature !== undefined) {
-        document.getElementById('temperature').textContent = `${data.temperature.toFixed(2)} °C`;
-        // Update progress bar (assuming range 0-50°C)
-        const tempPercent = Math.min(100, Math.max(0, (data.temperature / 50) * 100));
+      if (data.suhu !== undefined) { // Changed from temperature to suhu
+        document.getElementById('temperature').textContent = `${data.suhu.toFixed(2)} °C`;
+        // Update progress bar (assuming typical range 0-50°C, adjust as needed)
+        const tempPercent = Math.min(100, Math.max(0, (data.suhu / 50) * 100));
         document.getElementById('temp-bar').style.width = `${tempPercent}%`;
       }
       
-      if (data.pressure !== undefined) {
-        document.getElementById('pressure').textContent = `${data.pressure.toFixed(2)} hPa`;
-        // Update progress bar (assuming range 900-1100 hPa)
-        const pressPercent = Math.min(100, Math.max(0, ((data.pressure - 900) / 200) * 100));
+      if (data.tekanan !== undefined) { // Changed from pressure to tekanan
+        document.getElementById('pressure').textContent = `${data.tekanan.toFixed(2)} hPa`;
+        // Update progress bar (assuming range 900-1100 hPa, adjust as needed)
+        const pressPercent = Math.min(100, Math.max(0, ((data.tekanan - 900) / 200) * 100));
         document.getElementById('press-bar').style.width = `${pressPercent}%`;
       }
       
-      if (data.humidity !== undefined) {
-        document.getElementById('humidity').textContent = `${data.humidity.toFixed(2)} %`;
+      if (data.kelembapan !== undefined) { // Changed from humidity to kelembapan
+        document.getElementById('humidity').textContent = `${data.kelembapan.toFixed(2)} %`;
         // Update progress bar (0-100%)
-        document.getElementById('humi-bar').style.width = `${data.humidity}%`;
+        document.getElementById('humi-bar').style.width = `${data.kelembapan}%`;
       }
       
       document.getElementById('lastUpdate').textContent = formatTime(lastUpdateTime);
     }
     
     // MQTT Setup
-    const mqttUrl = 'wss://7031e8491d334b88b475025af999ffeb.s1.eu.hivemq.cloud:8884/mqtt';
+    const mqttHost = '7031e8491d334b88b475025af999ffeb.s1.eu.hivemq.cloud';
+    const mqttPort = 8884; // For secure WebSockets (WSS)
+    const mqttPath = '/mqtt';
+    const mqttUrl = `wss://${mqttHost}:${mqttPort}${mqttPath}`;
+
     const options = {
       username: 'irsyad26',
-      password: 'Irsyad031226',
-      clean: true,
-      connectTimeout: 4000,
-      reconnectPeriod: 1000,
-      clientId: 'web-client-' + Math.random().toString(16).substr(2, 8),
+      password: 'Irsyad031226', 
+      clean: true, // Set to true to delete previous session on connect
+      connectTimeout: 4000, // 4 seconds
+      reconnectPeriod: 1000, // Reconnect every 1 second
+      clientId: 'web-client-' + Math.random().toString(16).substr(2, 8), // Unique client ID
     };
     
     const client = mqtt.connect(mqttUrl, options);
@@ -294,17 +366,17 @@
       console.log('✅ Terhubung ke broker MQTT');
       updateConnectionStatus(true);
       
-      // Subscribe ke topik dengan QoS 1 untuk memastikan pesan diterima
+      // Subscribe to topics with QoS 1 for guaranteed delivery
       client.subscribe('iot/esp8266/relay/status', { qos: 1 }, (err) => {
         if (err) console.error('Gagal subscribe relay status:', err);
       });
       
-      client.subscribe('iot/esp8266/sensor', { qos: 1 }, (err) => {
-        if (err) console.error('Gagal subscribe sensor:', err);
+      client.subscribe('iot/esp32/data', { qos: 1 }, (err) => { // Subscribing to esp32 data topic
+        if (err) console.error('Gagal subscribe sensor data:', err);
       });
       
-      // Request current relay status
-      client.publish('iot/esp8266/relay/get_status', '1', { qos: 1 });
+      // Request current relay status from ESP8266 (optional, as API is primary)
+      // client.publish('iot/esp8266/relay/get_status', '1', { qos: 1 });
     });
     
     client.on('reconnect', () => {
@@ -320,6 +392,7 @@
     client.on('error', (err) => {
       console.error('❌ Error MQTT:', err);
       updateConnectionStatus(false);
+      showMessageBox('Error MQTT', `Terjadi kesalahan koneksi MQTT: ${err.message || err}.`);
     });
     
     client.on('message', (topic, message) => {
@@ -328,26 +401,29 @@
         console.log(`📩 Pesan baru di ${topic}:`, data);
         
         if (topic === 'iot/esp8266/relay/status') {
+          // This topic might send individual relay updates or an array of all.
+          // Handle both cases.
           if (Array.isArray(data.relays)) {
             data.relays.forEach(r => {
-              if (r.relay_channel !== undefined && r.status !== undefined) {
+              if (r.relay_channel !== undefined && r.status !== undefined && r.relay_channel >= 0 && r.relay_channel < relayStates.length) {
                 relayStates[r.relay_channel] = r.status;
                 updateRelayButton(r.relay_channel, r.status);
               }
             });
             relayLastUpdateTime = new Date();
             document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
-          } else if (data.relay !== undefined && data.state !== undefined) {
+          } else if (data.relay !== undefined && data.state !== undefined && data.relay >= 0 && data.relay < relayStates.length) {
             relayStates[data.relay] = data.state;
             updateRelayButton(data.relay, data.state);
             relayLastUpdateTime = new Date();
             document.getElementById('relayLastUpdate').textContent = formatTime(relayLastUpdateTime);
           }
-        } else if (topic === 'iot/esp8266/sensor') {
+        } else if (topic === 'iot/esp32/data') { // Updated topic for sensor data
           updateSensorData(data);
         }
       } catch (err) {
         console.error('Gagal memproses pesan:', err);
+        showMessageBox('Error Pesan MQTT', 'Gagal memproses pesan MQTT yang diterima.');
       }
     });
     
@@ -373,18 +449,105 @@
       if (document.visibilityState === 'visible' && lastUpdateTime) {
         const now = new Date();
         const diff = (now - lastUpdateTime) / 1000;
-        if (diff > 30) {
-          const notif = new Notification('Perhatian', {
-            body: `Data sensor terakhir diterima ${Math.floor(diff)} detik yang lalu`
-          });
+        if (diff > 30) { // If data is older than 30 seconds
+          showMessageBox('Perhatian', `Data sensor terakhir diterima ${Math.floor(diff)} detik yang lalu.`);
         }
       }
     });
     
     // Minta izin notifikasi
     if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
+      Notification.requestPermission().then(permission => {
+        if (permission === 'denied') {
+          console.warn('Izin notifikasi ditolak. Notifikasi tidak akan ditampilkan.');
+        }
+      });
     }
+
+    // Custom message box function (replaces alert() and Notification)
+    function showMessageBox(title, message, duration = 3000) { // Added duration for auto-dismiss
+        // Remove any existing message boxes
+        const existingMessageBox = document.getElementById('customMessageBoxOverlay');
+        if (existingMessageBox) {
+            existingMessageBox.remove();
+        }
+
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'customMessageBoxOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for less intrusive notifications */
+            padding-top: 50px; /* Space from top */
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out; /* Use fadeIn for appearance */
+        `;
+
+        // Create message box
+        const messageBox = document.createElement('div');
+        messageBox.style.cssText = `
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            font-family: inherit;
+            position: relative;
+            transform: translateY(-20px); /* Initial position for slide-in */
+            animation: fadeIn 0.3s ease-out forwards; /* Ensures it slides in */
+        `;
+
+        messageBox.innerHTML = `
+            <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #333;">${title}</h3>
+            <p style="font-size: 1rem; color: #555; margin-bottom: 20px;">${message}</p>
+            <button id="msgBoxCloseBtn" style="
+                background-color: #007bff;
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: background-color 0.2s ease;
+            ">OK</button>
+        `;
+
+        overlay.appendChild(messageBox);
+        document.body.appendChild(overlay);
+
+        // Auto-dismiss after duration if provided
+        if (duration > 0) {
+            setTimeout(() => {
+                // Add fadeOut animation before removing
+                messageBox.style.animation = 'fadeOut 0.3s ease-out forwards';
+                overlay.style.animation = 'fadeOut 0.3s ease-out forwards';
+                messageBox.addEventListener('animationend', () => overlay.remove());
+            }, duration);
+        }
+
+
+        document.getElementById('msgBoxCloseBtn').onclick = () => {
+            messageBox.style.animation = 'fadeOut 0.3s ease-out forwards';
+            overlay.style.animation = 'fadeOut 0.3s ease-out forwards';
+            messageBox.addEventListener('animationend', () => overlay.remove());
+        };
+    }
+
+
+    // Run when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        loadInitialRelayStates(); // Load initial relay states from API
+        // Any other initializations that depend on DOM being ready
+    });
   </script>
 </body>
 </html>
