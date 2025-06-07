@@ -9,15 +9,13 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='steye.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='steye.css') }}">
 
 </head>
 
 <body class="dashboard-grid">
-  <!-- Background particles -->
   <div class="particles" id="particles"></div>
 
-  <!-- Top Navigation -->
   <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-4">
@@ -29,7 +27,7 @@
           <p class="text-sm opacity-80">Real-time sensor monitoring system</p>
         </div>
       </div>
-      
+
       <nav class="hidden md:flex items-center space-x-6">
         <a href="/" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
           <i class="fas fa-chart-line mr-2"></i>Monitoring
@@ -40,11 +38,11 @@
         <a href="/control/relay" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
           <i class="fas fa-toggle-on mr-2"></i>Control Relay
         </a>
-          <a href="/esp32/cam" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
-          <i class="fas fa-toggle-on mr-2"></i>CCTV
+        <a href="/esp32/cam" class="px-4 py-2 rounded-md text-sm font-medium bg-white bg-opacity-0 hover:bg-opacity-10 transition flex items-center ripple">
+          <i class="fas fa-camera mr-2"></i>CCTV
         </a>
       </nav>
-      
+
       <div class="flex items-center space-x-4">
         <div class="hidden md:block text-right">
           <p class="text-sm font-medium">irsyad@example.com</p>
@@ -60,9 +58,7 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="main-content">
-    <!-- Location and Weather Section -->
     <section class="gradient-border mb-6">
       <div class="bg-white rounded-xl p-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
@@ -75,9 +71,9 @@
             <div class="text-gray-500">Feels Like 55°</div>
           </div>
         </div>
-        
-      
-    <!-- Welcome Header -->
+      </div>
+    </section>
+
     <section class="glass-card rounded-2xl shadow-sm p-6 mb-6 flex flex-col md:flex-row items-center gap-6 card-hover wave">
       <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center shadow-md floating-icon ripple">
         <i class="fas fa-cloud text-2xl text-white"></i>
@@ -92,14 +88,12 @@
       </div>
     </section>
 
-    <!-- Sensor Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <!-- Temperature Card -->
       <div class="sensor-card temperature bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm font-medium text-gray-500">Temperature</p>
-            <h3 class="text-3xl font-bold text-blue-500 mt-1" id="suhu-terakhir">30.28</h3>
+            <h3 class="text-3xl font-bold text-blue-500 mt-1" id="suhu-terakhir">--</h3>
             <p class="text-xs text-gray-400 mt-1">°C</p>
           </div>
           <div class="p-3 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 transition">
@@ -108,16 +102,15 @@
         </div>
         <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <p class="text-xs text-gray-500">Last update</p>
-          <p class="text-xs font-medium" id="temp-update-time">--:--</p>
+          <p class="text-xs font-medium" id="suhu-update-time">--:--</p>
         </div>
       </div>
-      
-      <!-- Humidity Card -->
+
       <div class="sensor-card humidity bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm font-medium text-gray-500">Humidity</p>
-            <h3 class="text-3xl font-bold text-green-500 mt-1" id="kelembapan-terakhir">82.3</h3>
+            <h3 class="text-3xl font-bold text-green-500 mt-1" id="kelembapan-terakhir">--</h3>
             <p class="text-xs text-gray-400 mt-1">% RH</p>
           </div>
           <div class="p-3 rounded-lg bg-green-50 text-green-500 hover:bg-green-100 transition">
@@ -126,16 +119,15 @@
         </div>
         <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <p class="text-xs text-gray-500">Last update</p>
-          <p class="text-xs font-medium" id="humidity-update-time">--:--</p>
+          <p class="text-xs font-medium" id="kelembapan-update-time">--:--</p>
         </div>
       </div>
-      
-      <!-- Pressure Card -->
+
       <div class="sensor-card pressure bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm font-medium text-gray-500">Pressure</p>
-            <h3 class="text-3xl font-bold text-yellow-500 mt-1" id="tekanan-terakhir">1009.04</h3>
+            <h3 class="text-3xl font-bold text-yellow-500 mt-1" id="tekanan-terakhir">--</h3>
             <p class="text-xs text-gray-400 mt-1">hPa</p>
           </div>
           <div class="p-3 rounded-lg bg-yellow-50 text-yellow-500 hover:bg-yellow-100 transition">
@@ -144,17 +136,16 @@
         </div>
         <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <p class="text-xs text-gray-500">Last update</p>
-          <p class="text-xs font-medium" id="pressure-update-time">--:--</p>
+          <p class="text-xs font-medium" id="tekanan-update-time">--:--</p>
         </div>
       </div>
-      
-      <!-- Distance Card -->
+
       <div class="sensor-card distance bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm font-medium text-gray-500">Distance</p>
-            <h3 class="text-3xl font-bold text-cyan-500 mt-1" id="shcr04-jarak">7.87</h3>
-            <p class="text-xs text-gray-400 mt-1">centimeters</p>
+            <h3 class="text-3xl font-bold text-cyan-500 mt-1" id="shcr04-jarak">--</h3>
+            <p class="text-xs text-gray-400 mt-1">cm</p>
           </div>
           <div class="p-3 rounded-lg bg-cyan-50 text-cyan-500 hover:bg-cyan-100 transition">
             <i class="fas fa-ruler-vertical text-xl"></i>
@@ -162,37 +153,34 @@
         </div>
         <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <p class="text-xs text-gray-500">Last update</p>
-          <p class="text-xs font-medium" id="distance-update-time">--:--</p>
+          <p class="text-xs font-medium" id="shcr04-jarak-update-time">--:--</p>
         </div>
       </div>
     </div>
 
-    <!-- Second Row of Sensor Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <!-- Air Quality Card -->
-      <div class="sensor-card air-quality bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+      <div class="sensor-card light-intensity bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
-            <p class="text-sm font-medium text-gray-500">Air Quality</p>
-            <h3 class="text-3xl font-bold text-red-500 mt-1" id="status-kualitas-udara">108 ppm</h3>
-            <p class="text-xs text-gray-400 mt-1">Tercemar</p>
+            <p class="text-sm font-medium text-gray-500">Light Intensity</p>
+            <h3 class="text-3xl font-bold text-indigo-500 mt-1" id="intensitas-cahaya-terakhir">--</h3>
+            <p class="text-xs text-gray-400 mt-1">Lux</p>
           </div>
-          <div class="p-3 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition">
-            <i class="fas fa-wind text-xl"></i>
+          <div class="p-3 rounded-lg bg-indigo-50 text-indigo-500 hover:bg-indigo-100 transition">
+            <i class="fas fa-sun text-xl"></i>
           </div>
         </div>
         <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <p class="text-xs text-gray-500">Last update</p>
-          <p class="text-xs font-medium" id="air-quality-update-time">--:--</p>
+          <p class="text-xs font-medium" id="intensitas-cahaya-update-time">--:--</p>
         </div>
       </div>
-      
-      <!-- Fire Detection Card -->
+
       <div class="sensor-card fire bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm font-medium text-gray-500">Fire Detection</p>
-            <h3 class="text-3xl font-bold text-red-500 mt-1" id="kebakaran-terakhir">Aman</h3>
+            <h3 class="text-3xl font-bold text-red-500 mt-1" id="kebakaran-terakhir">--</h3>
             <p class="text-xs text-gray-400 mt-1">Status</p>
           </div>
           <div class="p-3 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition">
@@ -201,16 +189,15 @@
         </div>
         <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <p class="text-xs text-gray-500">Last update</p>
-          <p class="text-xs font-medium" id="fire-update-time">--:--</p>
+          <p class="text-xs font-medium" id="kebakaran-update-time">--:--</p>
         </div>
       </div>
-      
-      <!-- Altitude Card -->
+
       <div class="sensor-card altitude bg-white rounded-xl shadow-sm p-5 card-hover ripple">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm font-medium text-gray-500">Altitude</p>
-            <h3 class="text-3xl font-bold text-gray-600 mt-1" id="altitude-terakhir">30</h3>
+            <h3 class="text-3xl font-bold text-gray-600 mt-1" id="altitude-terakhir">--</h3>
             <p class="text-xs text-gray-400 mt-1">meters</p>
           </div>
           <div class="p-3 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 transition">
@@ -224,20 +211,18 @@
       </div>
     </div>
 
-    <!-- Charts Section -->
     <section class="mb-6">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-800">Sensor Data History</h3>
         <div class="flex items-center space-x-2">
-          <span class="text-xs text-gray-500">Last 10 minutes</span>
+          <span class="text-xs text-gray-500">Last 20 records</span>
           <button class="p-2 rounded-md bg-gray-100 text-gray-500 hover:bg-gray-200 transition ripple">
             <i class="fas fa-sync-alt text-sm"></i>
           </button>
         </div>
       </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Temperature Chart -->
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-sm font-medium text-gray-600 flex items-center">
@@ -250,8 +235,7 @@
             <canvas id="chart-suhu"></canvas>
           </div>
         </div>
-        
-        <!-- Humidity Chart -->
+
         <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-sm font-medium text-gray-600 flex items-center">
@@ -264,8 +248,7 @@
             <canvas id="chart-kelembapan"></canvas>
           </div>
         </div>
-        
-        <!-- Pressure Chart -->
+
         <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-sm font-medium text-gray-600 flex items-center">
@@ -278,19 +261,29 @@
             <canvas id="chart-tekanan"></canvas>
           </div>
         </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover ripple">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-medium text-gray-600 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>
+              Light Intensity
+            </h4>
+            <span class="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full">Lux</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-intensitas-cahaya"></canvas>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Notifications Section -->
     <section id="notifikasi-container" class="fixed bottom-20 md:bottom-6 right-4 z-40 w-full max-w-xs space-y-3"></section>
   </main>
 
-  <!-- Floating Action Button -->
   <div class="fab ripple" id="fab">
     <i class="fas fa-bolt"></i>
   </div>
 
-  <!-- Mobile Menu -->
   <div class="md:hidden bg-white shadow-lg fixed bottom-0 left-0 right-0 z-40">
     <div class="flex justify-around py-3">
       <a href="/" class="flex flex-col items-center text-blue-600 ripple">
@@ -312,46 +305,48 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="bg-white border-t border-gray-200 py-4 px-6 text-center">
     <p class="text-xs text-gray-500" id="footer-info">No data has been deleted.</p>
   </footer>
 
-  <!-- JS Libraries -->
   <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
   <script src="{{ url_for('static', filename='app.js') }}"></script>
-  
+
   <script>
-    const socket = io();
+    // Your JavaScript for particles, updateTime, initChart, and ripple effects
+    // This part should be moved to app.js if you want to keep your HTML clean
+    // For demonstration, I'll keep them here, but best practice is to externalize
+
+    const socket = io(); // Connects to the default namespace
 
     // Create background particles
     function createParticles() {
       const particlesContainer = document.getElementById('particles');
       const particleCount = 15;
-      
+
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
-        
+
         // Random size between 5 and 15px
         const size = Math.random() * 10 + 5;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-        
+
         // Random position
         particle.style.left = `${Math.random() * 100}%`;
         particle.style.top = `${Math.random() * 100}%`;
-        
+
         // Random animation duration between 10s and 20s
         particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
-        
+
         // Random delay
         particle.style.animationDelay = `${Math.random() * 5}s`;
-        
+
         particlesContainer.appendChild(particle);
       }
     }
-    
+
     // Initialize particles
     createParticles();
 
@@ -364,30 +359,33 @@
     setInterval(updateTime, 1000);
     updateTime();
 
-    // Initialize charts
-    function initChart(canvasId, color) {
-      const ctx = document.getElementById(canvasId).getContext('2d');
+    // Initialize all charts (moved from your previous app.js to here for clarity)
+    // This function will be called by loadSensorChart in your app.js
+    let suhuChart, kelembapanChart, tekananChart, intensitasCahayaChart; // Declare here for global access
+
+    function createChart(ctx, label, data, borderColor, bgColor, satuan) {
       return new Chart(ctx, {
         type: 'line',
         data: {
-          labels: Array.from({length: 10}, (_, i) => `${i * 1} min`),
+          labels: data.labels,
           datasets: [{
-            label: '',
-            data: Array(10).fill(0),
-            borderColor: color,
-            backgroundColor: 'rgba(255, 255, 255, 0)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0,
+            label: label,
+            data: data.data,
+            borderColor: borderColor,
+            backgroundColor: bgColor,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3, // Smaller points
             pointHoverRadius: 5,
-            pointBackgroundColor: color,
-            pointHoverBackgroundColor: color,
-            fill: false
+            pointBackgroundColor: borderColor, // Point color matches line
+            pointHoverBackgroundColor: borderColor,
+            pointBorderColor: '#fff', // White border for points
+            pointBorderWidth: 1 // Slight border for points
           }]
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,
+          maintainAspectRatio: false, // Allows flexible sizing
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -397,17 +395,40 @@
               titleFont: { size: 12 },
               bodyFont: { size: 12 },
               padding: 10,
-              cornerRadius: 6
+              cornerRadius: 6,
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + context.formattedValue + ' ' + satuan;
+                }
+              }
             }
           },
           scales: {
             x: {
-              grid: { display: false },
-              ticks: { color: '#64748b' }
+              title: {
+                display: true,
+                text: 'Waktu',
+                color: '#64748b' // Label color
+              },
+              grid: {
+                display: false // No vertical grid lines
+              },
+              ticks: {
+                color: '#64748b' // Tick label color
+              }
             },
             y: {
-              grid: { color: '#e2e8f0' },
-              ticks: { color: '#64748b' }
+              title: {
+                display: true,
+                text: satuan,
+                color: '#64748b' // Label color
+              },
+              grid: {
+                color: '#e2e8f0' // Light grey horizontal grid lines
+              },
+              ticks: {
+                color: '#64748b' // Tick label color
+              }
             }
           },
           interaction: {
@@ -419,44 +440,6 @@
       });
     }
 
-    // Initialize all charts
-    const tempChart = initChart('chart-suhu', '#3b82f6');
-    const humidityChart = initChart('chart-kelembapan', '#10b981');
-    const pressureChart = initChart('chart-tekanan', '#f59e0b');
-
-    // WebSocket for server connection
-    socket.on('connect', () => {
-      console.log('Connected to server');
-    });
-
-    // WebSocket for deleted data notification
-    socket.on('data_deleted', function(data) {
-      const container = document.getElementById("notifikasi-container");
-      const footer = document.getElementById("footer-info");
-
-      if (data.count > 0) {
-        const div = document.createElement("div");
-        div.className = "bg-white rounded-lg shadow-lg p-4 border-l-4 border-red-500 notification-animation";
-        div.innerHTML = `
-          <div class="flex items-start">
-            <div class="flex-shrink-0 p-2 bg-red-100 rounded-full text-red-500">
-              <i class="fas fa-trash-alt"></i>
-            </div>
-            <div class="ml-3">
-              <h4 class="text-sm font-medium text-gray-900">Data Cleanup</h4>
-              <p class="text-xs text-gray-500 mt-1">
-                <strong>${data.count} old records</strong> were deleted at <strong>${data.time}</strong>
-              </p>
-            </div>
-          </div>
-        `;
-        container.appendChild(div);
-        footer.innerText = `${data.count} old records deleted at ${data.time}`;
-        setTimeout(() => div.remove(), 5000);
-      } else {
-        footer.innerText = "No data has been deleted.";
-      }
-    });
 
     // Function to update sensor timestamps
     function updateSensorTimestamp(sensorId) {
@@ -475,52 +458,204 @@
         }, 500);
       }
     }
-// Ripple effect for buttons
-function setupRippleEffect() {
-  const buttons = document.querySelectorAll('.ripple');
-  
-  buttons.forEach(button => {
-    button.style.position = 'relative';
-    button.style.overflow = 'hidden';
 
-    button.addEventListener('click', function(e) {
-      const rect = e.target.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    // Ripple effect for buttons
+    function setupRippleEffect() {
+      const buttons = document.querySelectorAll('.ripple');
 
-      const ripples = document.createElement('span');
-      ripples.style.position = 'absolute';
-      ripples.style.background = 'rgba(255, 255, 255, 0.5)';
-      ripples.style.borderRadius = '50%';
-      ripples.style.transform = 'scale(0)';
-      ripples.style.animation = 'ripple-animation 0.6s linear';
-      ripples.style.left = `${x}px`;
-      ripples.style.top = `${y}px`;
-      ripples.style.width = ripples.style.height = '200px';
-      ripples.style.pointerEvents = 'none';
-      ripples.style.zIndex = '10';
-      ripples.classList.add('ripple-span');
+      buttons.forEach(button => {
+        button.style.position = 'relative';
+        button.style.overflow = 'hidden';
 
-      this.appendChild(ripples);
+        button.addEventListener('click', function(e) {
+          const rect = e.target.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
 
-      setTimeout(() => {
-        ripples.remove();
-      }, 600); // same as animation duration
+          const ripples = document.createElement('span');
+          ripples.style.position = 'absolute';
+          ripples.style.background = 'rgba(255, 255, 255, 0.5)';
+          ripples.style.borderRadius = '50%';
+          ripples.style.transform = 'scale(0)';
+          ripples.style.animation = 'ripple-animation 0.6s linear';
+          ripples.style.left = `${x}px`;
+          ripples.style.top = `${y}px`;
+          ripples.style.width = ripples.style.height = '200px';
+          ripples.style.pointerEvents = 'none';
+          ripples.style.zIndex = '10';
+          ripples.classList.add('ripple-span');
+
+          this.appendChild(ripples);
+
+          setTimeout(() => {
+            ripples.remove();
+          }, 600); // same as animation duration
+        });
+      });
+    }
+
+    // Add ripple animation CSS
+    const rippleStyle = document.createElement('style');
+    rippleStyle.innerHTML = `
+    @keyframes ripple-animation {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    `;
+    document.head.appendChild(rippleStyle);
+
+    // Call the function after DOM is ready
+    document.addEventListener('DOMContentLoaded', setupRippleEffect);
+
+    // Initial load for charts (This part will interact with your external app.js)
+    // The `loadSensorChart` function from your app.js will handle the actual data fetching and chart creation.
+    // The `createChart` function definition is now included in this HTML file's script tag for a self-contained example.
+    // In a real application, you might put `createChart` into a shared utility file.
+
+    // WebSocket listener for new data
+    socket.on('new_data', function(data) {
+        console.log('[WebSocket] Data Masuk:', data);
+        const waktu = new Date().toLocaleTimeString();
+
+        // --- Ringkasan Sensor ---
+        document.getElementById('suhu-terakhir').textContent = data.suhu ? data.suhu.toFixed(2) + ' °C' : '--';
+        document.getElementById('kelembapan-terakhir').textContent = data.kelembapan ? data.kelembapan.toFixed(2) + ' %' : '--';
+        document.getElementById('tekanan-terakhir').textContent = data.tekanan ? data.tekanan.toFixed(2) + ' hPa' : '--';
+        document.getElementById('altitude-terakhir').textContent = data.altitude ? data.altitude.toFixed(2) + ' m' : '--';
+
+        // Penanganan Jarak
+        if (data.jarak_ultrasonik !== undefined && data.jarak_ultrasonik !== null) {
+            document.getElementById('shcr04-jarak').textContent = data.jarak_ultrasonik.toFixed(2) + ' cm';
+        } else {
+            document.getElementById('shcr04-jarak').textContent = '--';
+        }
+
+        // Intensitas Cahaya (BH1750) - Baru
+        if (data.intensitas_cahaya !== undefined && data.intensitas_cahaya !== null) {
+            document.getElementById('intensitas-cahaya-terakhir').textContent = data.intensitas_cahaya.toFixed(2) + ' Lux';
+        } else {
+            document.getElementById('intensitas-cahaya-terakhir').textContent = '--';
+        }
+
+        // Deteksi Kebakaran
+        let kebakaranStatus = '--';
+        if (data.kebakaran !== undefined && data.kebakaran !== null) {
+            // Asumsi: data.kebakaran adalah 0 untuk aman, 1 untuk bahaya
+            kebakaranStatus = (data.kebakaran === 1 || data.kebakaran === '1') ? 'Bahaya' : 'Aman';
+        }
+        document.getElementById('kebakaran-terakhir').textContent = kebakaranStatus;
+
+        // Update timestamps
+        updateSensorTimestamp('suhu');
+        updateSensorTimestamp('kelembapan');
+        updateSensorTimestamp('tekanan');
+        updateSensorTimestamp('altitude');
+        updateSensorTimestamp('shcr04-jarak');
+        updateSensorTimestamp('intensitas-cahaya');
+        updateSensorTimestamp('kebakaran');
+
+        // Animate value updates
+        animateValueUpdate('suhu-terakhir');
+        animateValueUpdate('kelembapan-terakhir');
+        animateValueUpdate('tekanan-terakhir');
+        animateValueUpdate('altitude-terakhir');
+        animateValueUpdate('shcr04-jarak');
+        animateValueUpdate('intensitas-cahaya-terakhir');
+        animateValueUpdate('kebakaran-terakhir');
+
+
+        // --- Update Charts ---
+        const maxDataPoints = 20; // Keep 20 data points
+
+        if (suhuChart && suhuChart.data) {
+            suhuChart.data.labels.push(waktu);
+            suhuChart.data.datasets[0].data.push(data.suhu);
+            if (suhuChart.data.labels.length > maxDataPoints) {
+                suhuChart.data.labels.shift();
+                suhuChart.data.datasets[0].data.shift();
+            }
+            suhuChart.update();
+        }
+
+        if (kelembapanChart && kelembapanChart.data) {
+            kelembapanChart.data.labels.push(waktu);
+            kelembapanChart.data.datasets[0].data.push(data.kelembapan);
+            if (kelembapanChart.data.labels.length > maxDataPoints) {
+                kelembapanChart.data.labels.shift();
+                kelembapanChart.data.datasets[0].data.shift();
+            }
+            kelembapanChart.update();
+        }
+
+        if (tekananChart && tekananChart.data) {
+            tekananChart.data.labels.push(waktu);
+            tekananChart.data.datasets[0].data.push(data.tekanan);
+            if (tekananChart.data.labels.length > maxDataPoints) {
+                tekananChart.data.labels.shift();
+                tekananChart.data.datasets[0].data.shift();
+            }
+            tekananChart.update();
+        }
+
+        // Update Chart: Intensitas Cahaya (BH1750) - Baru
+        if (intensitasCahayaChart && intensitasCahayaChart.data) {
+            intensitasCahayaChart.data.labels.push(waktu);
+            intensitasCahayaChart.data.datasets[0].data.push(data.intensitas_cahaya);
+            if (intensitasCahayaChart.data.labels.length > maxDataPoints) {
+                intensitasCahayaChart.data.labels.shift();
+                intensitasCahayaChart.data.datasets[0].data.shift();
+            }
+            intensitasCahayaChart.update();
+        }
     });
-  });
-}
 
-// Add ripple animation CSS
-const rippleStyle = document.createElement('style');
-rippleStyle.innerHTML = `
-@keyframes ripple-animation {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-`;
-document.head.appendChild(rippleStyle);
+    // Load initial data for charts from API (This function should be in app.js)
+    async function loadSensorChart() {
+        try {
+            const res = await fetch('/api/bme280/chart-multi');
+            const data = await res.json();
 
-// Call the function after DOM is ready
-document.addEventListener('DOMContentLoaded', setupRippleEffect);
+            const labels = data.labels || [];
+            const suhuData = data.suhu || [];
+            const kelembapanData = data.kelembapan || [];
+            const tekananData = data.tekanan || [];
+            const intensitasCahayaData = data.intensitas_cahaya || [];
+
+            suhuChart = createChart(
+                document.getElementById('chart-suhu').getContext('2d'),
+                'Suhu (°C)', { labels: labels, data: suhuData },
+                '#007bff', 'rgba(0,123,255,0.1)', '°C'
+            );
+
+            kelembapanChart = createChart(
+                document.getElementById('chart-kelembapan').getContext('2d'),
+                'Kelembapan (%)', { labels: labels, data: kelembapanData },
+                '#28a745', 'rgba(40,167,69,0.1)', '%'
+            );
+
+            tekananChart = createChart(
+                document.getElementById('chart-tekanan').getContext('2d'),
+                'Tekanan (hPa)', { labels: labels, data: tekananData },
+                '#ffc107', 'rgba(255,193,7,0.1)', 'hPa'
+            );
+
+            intensitasCahayaChart = createChart(
+                document.getElementById('chart-intensitas-cahaya').getContext('2d'),
+                'Intensitas Cahaya (Lux)', { labels: labels, data: intensitasCahayaData },
+                '#6f42c1', 'rgba(111,66,193,0.1)', 'Lux'
+            );
+
+        } catch (err) {
+            console.error('Gagal memuat data chart awal:', err);
+        }
+    }
+
+    // Call the initial data loading function
+    loadSensorChart();
+  </script>
+
+</body>
+
+</html>
