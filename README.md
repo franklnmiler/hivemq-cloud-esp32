@@ -54,7 +54,7 @@
                                 // WiFi dan MQTT
                                 const char* ssidList[] = {"xiaomi 12", "Universitas Pelita Bangsa New", "GEORGIA"};
                                 const char* passwordList[] = {"12345678", "megah123", "Georgia12345"};
-                                const char* mqtt_server = "7bf8eb8dc92a4636b2ec3632ce6b177a.s1.eu.hivemq.cloud";
+                                const char* mqtt_server = "";
                                 const int mqtt_port = 8883;
                                 const char* mqtt_user = "irsyad26";
                                 const char* mqtt_pass = "Irsyad261203";
